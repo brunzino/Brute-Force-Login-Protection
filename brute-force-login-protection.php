@@ -80,9 +80,15 @@ class BruteForceLoginProtection
         add_action('wp_login_failed', array($this, 'loginFailed'));
         add_action('wp_login', array($this, 'loginSucceeded'));
 
+        // getting a lot of xmlrpc and wp_login_failed not getting fired, so just whitelist anyone who successfully logs in 
+        add_action('xmlrpc_call', array($this, 'loginFailed'));
+        add_action('wp_login', array($this, 'whitelistClientIP'));
+
         // Auth cookie hooks
         add_action('auth_cookie_bad_username', array($this, 'loginFailed'));
         add_action('auth_cookie_bad_hash', array($this, 'loginFailed'));
+        // add_action('auth_cookie_malformed', array($this, 'loginFailed'));
+        add_action('auth_cookie_bad_session_token', array($this, 'loginFailed'));
     }
 
     /**
@@ -141,7 +147,7 @@ class BruteForceLoginProtection
     public function activate()
     {
         $this->setHtaccessPath();
-        $this->htaccess->setFilesMatch();        
+        $this->htaccess->setFilesMatch();
         $this->htaccess->uncommentLines();
     }
 
@@ -238,6 +244,11 @@ class BruteForceLoginProtection
         } else {
             $this->showError(sprintf(__('An error occurred while unblocking IP %s', 'brute-force-login-protection'), $IP));
         }
+    }
+
+
+    public function whitelistClientIP() {
+        $this->manualWhitelistIP($_SERVER['REMOTE_ADDR']);
     }
 
     /**

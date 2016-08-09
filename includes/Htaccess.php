@@ -14,7 +14,7 @@ class Htaccess
      * 
      * @var string
      */
-    private $filesMatch;
+    private $filesMatch = '.*\.(php|html?|css|js|jpe?g|png|gif)$';
 
     /**
      * Get .htaccess lines before custom lines
@@ -213,6 +213,7 @@ class Htaccess
         }
 
         $insertion = array_merge($this->getHeader(), $lines, $this->getFooter());
+        print_r($insertion);
 
         return $this->insert($insertion);
     }
